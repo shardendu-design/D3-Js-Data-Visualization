@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+
+<!-- Google fonts reference-->
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Castoro&display=swap" rel="stylesheet">
+
+<!-- Connecting with D3 library-->
+<script src="./d3.js" charset="utf-8"></script>
+
+<!-- Creating the headlines -->
+<p id="h1">SCATTER CHART OF GAPMINDER DATA</p>
+<h2 id="h2">GDP vs LIFEEXP</h2>
+
+<div id="link"><a href=>Shardendu Jha</a></div>
+
+<style>
+
+/*Defining text stylings*/
+
+#h1 {
+  font-size:30px;
+  margin:30px 0px 0px 20px;
+  color:white;
+  font-family:'Castoro', serif;
+  font-weight:bold;
+}
+
+#h2 {
+  font-size:30px;
+  margin:30px 0px 0px 20px;
+  color:white;
+  font-family:'Castoro', serif;
+  font-weight:bold;
+}
+
+#link {
+	font-family:'Castoro', serif;
+    font-weight:bold;
+    font-size:20px;
+	margin:5px 0px 0px 22px;
+    color:white;
+}
+
+a:link, a:visited, a:active {
+	text-decoration: none;
+    color:white;
+    border-bottom:1.5px dotted rgb(218, 18, 18);
+}
+
+body {
+  background-color:rgb(11, 61, 50);
+}
+
+/*Defining axes stylings*/
+
+.y-axis text, .x-axis text {
+  font-family:'Castoro', serif;
+  font-weight:400;
+  font-size:10px;
+  opacity:1;
+  fill:white;
+}
+
+.x-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:white;
+}
+
+.y-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:white;
+}
+
+.x-axis line, .y-axis line {
+  fill:none;
+  stroke-width:0.1;
+  stroke-opacity:1;
+  stroke:rgb(248, 238, 238);
+  stroke-dasharray:2;
+}
+
+/*Defining chart stylings*/
+
+circle {
+  fill-opacity:0.5;
+  stroke-width:0.5;
+  stroke-opacity:1;
+}
+
+</style>
+</head>
+
+<body>
+<script>
+
+//Margin conventions
+var m = {top:50, right:50, bottom:50, left:50}
+    w = 1000- m.left - m.right,
+    h = 800 - m.top - m.bottom;
+
+//Container
+var svg = d3.select("body")
+    .append("svg")
+    .attr("width", w + m.left + m.right)
+    .attr("height", h + m.top + m.bottom)
+    .append("g")
+        .attr("transform", `translate(${m.left}, ${m.top})`);
+        
+//Data loading
+d3.csv("gapminder.csv",type,render);
+
+//Global variables
+var xCol = "gdpPercap";
+var yCol = "lifeExp";
+var rCol = "pop";
+var colorCol = "country";
+
+//Scaling for the color
+var c = d3.scaleOrdinal()
+    .range(["#c7505d", "#0f2e94", "#f29c07","#42ed24"]);
+
+function render(data){
+
+//X scale
+var x = d3.scaleLinear()
+    .domain([0, 15000])
+    .range([0, w]);
+
+//Y scale
+var y = d3.scaleLinear()
+    .domain([20, 80])
+    .range([h, 0]);
+
+//Size scale domain
+var r = d3.scaleLinear()
+    .domain(d3.extent(data, d => d[rCol]))
+    .range([5, 20]);
+
+//X axis
+svg.append("g")
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0, ${h})`)
+    .call(d3.axisBottom()
+    .scale(x)
+    .ticks(5)
+    .tickSize(-h)
+    .tickPadding(20));
+
+//Y axis
+svg.append("g")
+    .attr("class", "y-axis")
+    .attr("transform", `translate(0, 0)`)
+    .call(d3.axisLeft()
+    .scale(y)
+    .ticks(3)
+    .tickSize(-w)
+    .tickPadding(20));
+
+//Data binding
+svg.selectAll("circle")
+     .data(data)
+     .enter()
+     .append("circle")
+     .attr("cx", d => x(d[xCol]))
+     .attr("cy", d => y(d[yCol]))
+     .attr("r", d => r(d[rCol]))
+     .attr("fill", d => c(d[colorCol]))
+     .attr("stroke", d => c(d[colorCol]));
+}
+
+//Data type
+function type(d) {
+  d.gdpPercap = +d.gdpPercap;
+  d.lifeExp = +d.lifeExp;
+  d.pop = +d.pop;
+  d.continent = +d.continent;
+  return d;
+}
+
+
+</script>
+</body>
+</html>
